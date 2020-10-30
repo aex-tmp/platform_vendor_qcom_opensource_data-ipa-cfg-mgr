@@ -120,7 +120,9 @@ RET IPACM_OffloadManager::unregisterCtTimeoutUpdater(ConntrackTimeoutUpdater* )
 
 RET IPACM_OffloadManager::provideFd(int fd, unsigned int groups)
 {
+#ifndef NO_UPDATE_NAT
 	struct timeval tv;
+#endif
 	IPACM_ConntrackClient *cc;
 	int on = 1, rel;
 	struct sockaddr_nl	local;
@@ -159,12 +161,17 @@ RET IPACM_OffloadManager::provideFd(int fd, unsigned int groups)
 		cc->fd_udp = dup(fd);
 		IPACMDBG_H("Received fd %d with groups %d.\n", fd, groups);
 		/* set netlink buf */
+#ifdef NO_UPDATE_NAT
+		rel = setsockopt(cc->fd_tcp, SOL_NETLINK, NETLINK_NO_ENOBUFS, &on, sizeof(int) );
+#else
 		rel = setsockopt(cc->fd_udp, SOL_NETLINK, NETLINK_NO_ENOBUFS, &on, sizeof(int) );
+#endif
 		if (rel == -1)
 		{
 			IPACMERR("setsockopt returned error code %d ( %s )\n", errno, strerror(errno));
 		}
 
+#ifndef NO_UPDATE_NAT
 		/* Set receive timeout to 1s on the FD which is used to read conntrack dump. */
 		memset(&tv,0, sizeof(struct timeval));
 		tv.tv_sec = 1; /* 1s timeout */
@@ -183,6 +190,7 @@ RET IPACM_OffloadManager::provideFd(int fd, unsigned int groups)
 		   for both TCP/UDP embedded traffic.
 		*/
 		CtList->readConntrack(fd);
+#endif
 	} else {
 		IPACMERR("Received unexpected fd with groups %d.\n", groups);
 	}

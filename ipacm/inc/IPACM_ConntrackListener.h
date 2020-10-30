@@ -68,7 +68,9 @@ private:
 	bool isCTReg;
 	bool isNatThreadStart;
 	bool WanUp;
+#ifndef NO_UPDATE_NAT
 	bool isProcessCTDone;
+#endif
 	NatApp *nat_inst;
 
 	int NatIfaceCnt;
@@ -78,7 +80,9 @@ private:
 	uint32_t nonnat_iface_ipv4_addr[MAX_IFACE_ADDRESS];
 	uint32_t sta_clnt_ipv4_addr[MAX_STA_CLNT_IFACES];
 	IPACM_Config *pConfig;
+#ifndef NO_UPDATE_NAT
 	struct nf_conntrack **ct_entries;
+#endif
 #ifdef CT_OPT
 	IPACM_LanToLan *p_lan2lan;
 #endif
@@ -106,7 +110,9 @@ public:
 	char wan_ifname[IPA_IFACE_NAME_LEN];
 	uint32_t wan_ipaddr;
 	ipacm_wan_iface_type backhaul_mode;
+#ifndef NO_UPDATE_NAT
 	bool isReadCTDone;
+#endif
 	IPACM_ConntrackListener();
 	void event_callback(ipa_cm_event_id, void *data);
 	inline bool isWanUp()
@@ -119,8 +125,10 @@ public:
 	void HandleSTAClientAddEvt(uint32_t);
 	void HandleSTAClientDelEvt(uint32_t);
 	int  CreateConnTrackThreads(void);
+#ifndef NO_UPDATE_NAT
 	void readConntrack(int fd);
 	void processConntrack(void);
+#endif
 };
 
 extern IPACM_ConntrackListener *CtList;

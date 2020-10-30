@@ -44,14 +44,18 @@ IPACM_ConntrackListener::IPACM_ConntrackListener()
 	 isNatThreadStart = false;
 	 isCTReg = false;
 	 WanUp = false;
+#ifndef NO_UPDATE_NAT
 	 isReadCTDone = false;
 	 isProcessCTDone = false;
+#endif
 	 nat_inst = NatApp::GetInstance();
 
 	 NatIfaceCnt = 0;
 	 StaClntCnt = 0;
 	 pNatIfaces = NULL;
+#ifndef NO_UPDATE_NAT
 	 ct_entries = NULL;
+#endif
 	 pConfig = IPACM_Config::GetInstance();;
 
 	 memset(nat_iface_ipv4_addr, 0, sizeof(nat_iface_ipv4_addr));
@@ -101,10 +105,12 @@ void IPACM_ConntrackListener::event_callback(ipa_cm_event_id evt,
 			IPACMDBG_H("Received IPA_HANDLE_WAN_UP event\n");
 			CreateConnTrackThreads();
 			TriggerWANUp(data);
+#ifndef NO_UPDATE_NAT
 			if(isReadCTDone && !isProcessCTDone)
 			{
 				processConntrack();
 			}
+#endif
 			break;
 
 	 case IPA_HANDLE_WAN_DOWN:
@@ -1210,6 +1216,7 @@ void IPACM_ConntrackListener::HandleSTAClientDelEvt(uint32_t clnt_ip_addr)
    return;
 }
 
+#ifndef NO_UPDATE_NAT
 bool isLocalHostAddr(uint32_t src_ip_addr, uint32_t dst_ip_addr) {
 
 	src_ip_addr = ntohl(src_ip_addr);
@@ -1380,3 +1387,4 @@ IGNORE:
 	IPACMDBG_H("process conntrack ended. Number of entries:%d \n", index);
 	return;
 }
+#endif

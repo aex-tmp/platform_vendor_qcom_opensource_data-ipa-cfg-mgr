@@ -5,6 +5,14 @@ cc_binary {
     local_include_dirs: ["src"] + ["inc"],
 	header_libs: ["generated_kernel_headers"],
 
+    product_variables: {
+        aosp: {
+            target_has_no_nat_update: {
+                cflags: ["-DNO_UPDATE_NAT"],
+            },
+        },
+    },
+
     cflags: ["-DFEATURE_IPA_ANDROID"] + ["-DFEATURE_IPACM_RESTART"] + [
         "-DFEATURE_IPACM_HAL",
 	"-DDEBUG",
